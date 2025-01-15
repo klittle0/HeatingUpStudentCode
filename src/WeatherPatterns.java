@@ -17,17 +17,17 @@ public class WeatherPatterns {
     public static int longestWarmingTrend(int[] temperatures) {
         int length = temperatures.length;
         int[] spanUpTo = new int[length];
-        // Represents the highest temperature that has served as the start of a span of days
-        int startMax = 1000;
+        // Represents the lowest temperature that has served as the start of a span of days
+        int startMin = 1000;
         // Each position/temp in the array should be a potential start
         for (int i = 0; i < length; i++){
-            // Only start there if it's lower than the highest previous start
-            if (temperatures[i] < startMax){
+            // Only start there if it's lower than the smallest previous start — should implement this logic for all succeeding moves! During recursive part
+            if (temperatures[i] < startMin){
                 recurseSpanLength(i, 1, spanUpTo, temperatures);
             }
             // Update startMax
-            if (temperatures[i] > startMax){
-                startMax = temperatures[i];
+            if (temperatures[i] < startMin){
+                startMin = temperatures[i];
             }
         }
         int maxRun = 0;
@@ -52,8 +52,11 @@ public class WeatherPatterns {
             return;
         }
         // Recurse for each subsequent spot on the board, but only if it's greater than the current value
+        // Store temperatures[index] as the next move
         for (int j = index + 1; j < length; j++){
-            if (temperatures[j] > temperatures[index]){
+            int smallestMove = 200;
+            if (temperatures[j] > temperatures[index] && temperatures[j] < smallestMove){
+                smallestMove = temperatures[j];
                 recurseSpanLength(j, spanLength + 1, spanUpTo, temperatures);
             }
         }

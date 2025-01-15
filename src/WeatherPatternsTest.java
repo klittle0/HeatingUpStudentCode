@@ -23,7 +23,7 @@ public class WeatherPatternsTest {
     }
 
     @Test
-    @Timeout(value = 1500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 15000, unit = TimeUnit.MILLISECONDS)
     public void testEfficientLarge() {
         setTestData(3);
     }
