@@ -8,37 +8,62 @@
 
 public class WeatherPatterns {
 
-
     /**
      * Longest Warming Trend
      * @param temperatures
      * @return the longest run of days with increasing temperatures
      */
     public static int longestWarmingTrend(int[] temperatures) {
+        // Make Adjacency matrix tracking all possible edges
         int length = temperatures.length;
-        int[] spanUpTo = new int[length];
-        // Represents the lowest temperature that has served as the start of a span of days
-        int startMin = 1000;
-        // Each position/temp in the array should be a potential start
+        int[] spanLengths = new int[length];
+        boolean[][] adjMatrix = new boolean[length][length];
         for (int i = 0; i < length; i++){
-            // Only start there if it's lower than the smallest previous start — should implement this logic for all succeeding moves! During recursive part
-            if (temperatures[i] < startMin){
-                recurseSpanLength(i, 1, spanUpTo, temperatures);
-            }
-            // Update startMax
-            if (temperatures[i] < startMin){
-                startMin = temperatures[i];
-            }
-        }
-        int maxRun = 0;
-        for (int span : spanUpTo){
-            if (span > maxRun){
-                maxRun = span;
+            for (int j = i + 1; j < length; j++){
+                // If
+                if (j > i){
+                    adjMatrix[i][j] = true;
+                }
+                else{
+                    adjMatrix[i][j] = false;
+                }
             }
         }
-        return maxRun;
+        // Recurse to find the longest span for every temp
+        for (int i = 0; i < length; i++){
+            findLongestPath(i, spanLengths, adjMatrix);
+        }
+        int max = 0;
+        // Find the longest span of all
+        for (int span : spanLengths){
+            if (span > max){
+                max = span;
+            }
+        }
+        return max;
     }
 
+
+    // Recursive method to find the longest span of temperatures leading to tempIndex
+    public static void findLongestPath(int tempIndex, int[] spanLengths, boolean[][] adjMatrix){
+        int spanLen = 0;
+        for (int i = 0; i < adjMatrix.length; i++){
+            // If a given index leads to the specified temp
+            if (adjMatrix[i][tempIndex]){
+                // Check if visited to reduce recursive calls
+                if (spanLengths[i] != 0){
+                    // Is this true??
+                    spanLen = spanLengths[i] + 1;
+                }
+                else{
+                    // DON'T FORGET TO INCLUDE THE + 1 SOMEWHERE HERE?
+                    findLongestPath(i, spanLengths, adjMatrix);
+                    spanLen = 1 + Math.max(spanLen, findLongestPath(i, spanLengths, adjMatrix));
+                }
+            }
+        }
+        spanLengths[tempIndex] = spanLen;
+    }
     // Calculates the distance it takes to get to a certain temp
     // Follows an algorithm like moksha patam!
     public static void recurseSpanLength(int index, int spanLength, int[] spanUpTo, int[] temperatures){
