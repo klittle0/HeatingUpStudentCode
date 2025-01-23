@@ -16,22 +16,31 @@ public class WeatherPatterns {
      * @return the longest run of days with increasing temperatures
      */
     public static int longestWarmingTrend(int[] temperatures) {
-        // Make Adjacency matrix tracking all possible edges
         int length = temperatures.length;
         int[] spanLengths = new int[length];
-        boolean[][] adjMatrix = new boolean[length][length];
         ArrayList<Integer>[] adjLists = new ArrayList[length];
 
+        for (int i = length - 1; i >= 0; i--){
+            // Initialize each arraylist in adjLists — referenced Geeksforgeeks for this line
+            adjLists[i] = new ArrayList<Integer>();
+            // Add all possible edges to list, aka all nodes that lead to temperatures[i]
+            for (int j = i - 1; j >= 0; j--){
+                if (temperatures[j] < temperatures[i]){
+                    adjLists[i].add(j);
+                }
+            }
+        }
 
         // Recurse to find the longest span for every temp
         for (int i = 0; i < length; i++){
-            spanLengths[i] = findLongestPath(i, spanLengths, adjMatrix);
+            spanLengths[i] = findLongestPath(i, spanLengths, adjLists);
         }
-        int max = 0;
+
         // Find the longest span of all
+        int max = 0;
         for (int span : spanLengths){
             // REMOVE PRINT STATEMENT LATER
-            System.out.println(span);
+            //System.out.println(span);
             if (span > max){
                 max = span;
             }
@@ -40,26 +49,15 @@ public class WeatherPatterns {
     }
 
     // Recursive method to find the longest span of temperatures leading to tempIndex
-    public static int findLongestPath(int tempIndex, int[] spanLengths, boolean[][] adjMatrix){
-        // Base case: If node already visited
+    public static int findLongestPath(int tempIndex, int[] spanLengths, ArrayList<Integer>[] adjList){
+        // Base case: If node already visited, break out early to remove redundant recursion
         if (spanLengths[tempIndex] != 0){
             return spanLengths[tempIndex];
         }
+
         int spanLen = 0;
-        for (int i = 0; i < adjMatrix.length; i++){
-            // If a given index leads to the specified temp
-            if (adjMatrix[i][tempIndex]){
-                //System.out.println("start temp for " + temperatures[tempIndex] + ": " + temperatures[i]);
-                // Check if visited to reduce recursive calls
-                // ISSUE HERE WITH THIS IF/ELSE SEQUENCE!
-                if (spanLengths[i] != 0){
-                    spanLen = spanLengths[i];
-                }
-                else{
-                    // Otherwise, you have to recurse & find longest possible path
-                    spanLen = Math.max(spanLen, findLongestPath(i, spanLengths, adjMatrix));
-                }
-            }
+        for (int temp : adjList[tempIndex]){
+            spanLen = Math.max(spanLen, findLongestPath(temp, spanLengths, adjList));
         }
         return spanLen + 1;
     }
